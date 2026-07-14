@@ -1,0 +1,6 @@
+{
+  "name": "Starfield Verified Creator Hub",
+  "description": "A high-fidelity project showcase and lore-friendly narrative architect for the Trade Wars and Galaxy In Starfield mod series.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
