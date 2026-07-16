@@ -20,42 +20,50 @@ export default function ProjectCard({ project }: { project: ModProject }) {
     <motion.div
       layout
       id={`project-card-${project.id}`}
-      className={`relative rounded-lg border bg-gradient-to-br p-6 transition-all duration-300 backdrop-blur-md ${project.visualTheme}`}
+      className={`relative rounded-lg border bg-gradient-to-br p-6 transition-all duration-300 backdrop-blur-md flex flex-col justify-between overflow-hidden ${
+        isExpanded ? "min-h-[380px]" : "h-[380px]"
+      } ${project.visualTheme}`}
       whileHover={{ scale: 1.01, translateY: -2 }}
     >
-      {/* Upper Status strip */}
-      <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-4">
-        <span className="text-[10px] uppercase font-mono tracking-widest text-zinc-400 flex items-center gap-1.5">
-          <span className={`h-1.5 w-1.5 rounded-full ${
-            project.status === "Available Now" ? "bg-emerald-400 animate-pulse" : "bg-amber-400"
-          }`} />
-          {project.status}
-        </span>
-        <span className="text-xs font-mono px-2 py-0.5 rounded bg-white/5 text-zinc-300 border border-white/10">
-          {project.category}
-        </span>
-      </div>
+      <div className="flex-1 flex flex-col justify-between overflow-hidden">
+        <div className="flex-1 flex flex-col overflow-hidden">
+          {/* Upper Status strip */}
+          <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-4 shrink-0">
+            <span className="text-[10px] uppercase font-mono tracking-widest text-zinc-400 flex items-center gap-1.5">
+              <span className={`h-1.5 w-1.5 rounded-full ${
+                project.status === "Available Now" ? "bg-emerald-400 animate-pulse" : "bg-amber-400"
+              }`} />
+              {project.status}
+            </span>
+            <span className="text-xs font-mono px-2 py-0.5 rounded bg-white/5 text-zinc-300 border border-white/10">
+              {project.category}
+            </span>
+          </div>
 
-      <div className="flex items-start gap-4">
-        <div className="p-3 rounded-lg bg-white/5 border border-white/10 text-white shadow-inner">
-          <LucideIcon name={project.iconName} className="h-6 w-6" />
+          <div className="flex items-start gap-4 shrink-0">
+            <div className="p-3 rounded-lg bg-white/5 border border-white/10 text-white shadow-inner shrink-0">
+              <LucideIcon name={project.iconName} className="h-6 w-6" />
+            </div>
+            <div className="min-w-0">
+              <h3 className="text-lg font-bold font-sans tracking-tight truncate">{project.title}</h3>
+              <p className="text-xs opacity-70 font-mono mt-0.5 truncate">{project.subtitle}</p>
+            </div>
+          </div>
+
+          <div className="mt-4 text-sm leading-relaxed opacity-80 overflow-y-auto flex-1 pr-1.5 custom-scrollbar font-sans select-text">
+            {project.description}
+          </div>
         </div>
-        <div>
-          <h3 className="text-lg font-bold font-sans tracking-tight">{project.title}</h3>
-          <p className="text-xs opacity-70 font-mono mt-0.5">{project.subtitle}</p>
-        </div>
+
+        {/* Primary interactive detail trigger */}
+        <button
+          onClick={() => setIsExpanded(!isExpanded)}
+          className="mt-5 w-full flex items-center justify-center gap-2 text-xs font-mono py-2 rounded border border-white/10 bg-white/5 hover:bg-white/10 transition-all text-white shrink-0"
+        >
+          <span>{isExpanded ? "HIDE PROJECT SPECIFICATIONS" : "VIEW PROJECT SPECIFICATIONS"}</span>
+          <Icons.ChevronDown className={`h-4 w-4 transition-transform ${isExpanded ? "rotate-180" : ""}`} />
+        </button>
       </div>
-
-      <p className="mt-4 text-sm leading-relaxed opacity-80">{project.description}</p>
-
-      {/* Primary interactive detail trigger */}
-      <button
-        onClick={() => setIsExpanded(!isExpanded)}
-        className="mt-5 w-full flex items-center justify-center gap-2 text-xs font-mono py-2 rounded border border-white/10 bg-white/5 hover:bg-white/10 transition-all text-white"
-      >
-        <span>{isExpanded ? "HIDE PROJECT SPECIFICATIONS" : "VIEW PROJECT SPECIFICATIONS"}</span>
-        <Icons.ChevronDown className={`h-4 w-4 transition-transform ${isExpanded ? "rotate-180" : ""}`} />
-      </button>
 
       {/* Expandable Specifications block */}
       <AnimatePresence>
@@ -65,7 +73,7 @@ export default function ProjectCard({ project }: { project: ModProject }) {
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.2 }}
-            className="overflow-hidden"
+            className="overflow-hidden mt-2"
           >
             <div className="mt-4 pt-4 border-t border-white/10 space-y-3">
               <h4 className="text-[11px] font-mono uppercase tracking-wider text-zinc-400">Core Subsystems / Features:</h4>
@@ -98,28 +106,22 @@ export default function ProjectCard({ project }: { project: ModProject }) {
       </AnimatePresence>
 
       {/* Actions */}
-      <div className="flex items-center gap-3 mt-6 pt-4 border-t border-white/10">
-        {project.creationsLink && (
+      <div className="mt-6 pt-4 border-t border-white/10">
+        {!project.creationsLink || project.creationsLink === "#" ? (
+          <div className="w-full text-center text-[10px] font-mono py-2.5 px-4 bg-white/5 border border-white/10 text-zinc-400 rounded">
+            SPECIFICATION ENCRYPTED // INTERNAL ONLY
+          </div>
+        ) : (
           <a
             href={project.creationsLink}
             target="_blank"
             rel="noreferrer"
-            className="flex-1 flex items-center justify-center gap-2 text-xs font-mono font-semibold py-2.5 px-4 bg-white text-black hover:bg-neutral-200 rounded transition-all text-center"
+            className="w-full flex items-center justify-center gap-2 text-xs font-mono font-semibold py-2.5 px-4 bg-white text-black hover:bg-neutral-200 rounded transition-all text-center"
           >
             <Icons.Download className="h-4 w-4" />
             BETHESDA CREATIONS
           </a>
         )}
-        <a
-          href={project.nexusLink}
-          onClick={(e) => {
-            if (project.nexusLink === "#") e.preventDefault();
-          }}
-          className="flex-1 flex items-center justify-center gap-2 text-xs font-mono py-2.5 px-4 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded transition-all text-center"
-        >
-          <Icons.ExternalLink className="h-4 w-4" />
-          SOURCE CODE / HUB
-        </a>
       </div>
     </motion.div>
   );

@@ -2,17 +2,32 @@ import React, { useState } from "react";
 import { motion } from "motion/react";
 import * as Icons from "lucide-react";
 
-export default function CredentialsGrid() {
+interface CredentialItem {
+  id: string;
+  title: string;
+  badge: string;
+  description: string;
+  techStack: string;
+  status: string;
+  color: string;
+  icon: string;
+}
+
+interface CredentialsGridProps {
+  credentials?: CredentialItem[];
+}
+
+export default function CredentialsGrid({ credentials }: CredentialsGridProps) {
   const [activeCert, setActiveCert] = useState<string | null>(null);
 
-  const creds = [
+  const defaultCreds: CredentialItem[] = [
     {
       id: "bethesda",
       title: "Bethesda Verified Creator",
       badge: "BVC-STARFIELD",
-      description: "Official Verified Creator with access to the Bethesda Creations kit, Starfield publishing engine, and direct marketplace monetization. Designing lore-accurate dynamic systems.",
-      techStack: "Starfield Creation Kit, Papyrus Scripting Engine, Custom Mesh Salvage Models",
-      status: "FULLY ACCREDITED",
+      description: "Verified Creator for Bethesda with access to the Bethesda Creations publishing system, specializing in building and maintaining immersive additions.",
+      techStack: "Starfield Creation Kit, Papyrus Scripting, Custom Starfield Systems",
+      status: "VERIFIED CREATOR",
       color: "border-zinc-700 bg-neutral-900 text-zinc-100 shadow-zinc-950",
       icon: "Award"
     },
@@ -20,8 +35,8 @@ export default function CredentialsGrid() {
       id: "microsoft",
       title: "Microsoft Partner",
       badge: "MS-PARTNER-ID",
-      description: "Enterprise Cloud Solution Architect specializing in secure Azure cloud databases, custom VM server pipelines, and cross-platform companion integration architectures.",
-      techStack: "Microsoft Azure, OAuth 2.0 Identity Management, C#, Secure REST Proxies",
+      description: "Microsoft Partner because of VC status with Bethesda, working within the broader Xbox and Microsoft developer ecosystem.",
+      techStack: "Microsoft Dev Center, Xbox Live Integration Guides",
       status: "ACTIVE PARTNER",
       color: "border-blue-900 bg-blue-950/20 text-blue-100 shadow-blue-950/20",
       icon: "Cpu"
@@ -30,13 +45,15 @@ export default function CredentialsGrid() {
       id: "google",
       title: "Google Developer",
       badge: "GDEV-CONSOLES",
-      description: "Google Play Console publisher delivering real-time companion apps, responsive layout dashboards, and sector telemetry widgets optimized for tablet and mobile viewports.",
-      techStack: "Google Cloud Platform, Android SDK, React & D3, Firebase & Firestore Systems",
-      status: "VERIFIED PUBLISHER",
+      description: "Self-taught weekend warrior developer with access to Google developer functions and publishing tools, learning and expanding capabilities for when ready to deploy.",
+      techStack: "Google Play Console, React & Web Tools, Firebase & AI Tools",
+      status: "ACCESS GRANTED",
       color: "border-emerald-900 bg-emerald-950/10 text-emerald-100 shadow-emerald-950/10",
       icon: "Code2"
     }
   ];
+
+  const creds = credentials || defaultCreds;
 
   return (
     <div className="space-y-6">

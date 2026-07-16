@@ -39,6 +39,9 @@ export default function App() {
   const [adminMessage, setAdminMessage] = useState("");
   const [adminError, setAdminError] = useState("");
 
+  const [credentials, setCredentials] = useState<any[]>([]);
+  const [editCreds, setEditCreds] = useState<any[]>([]);
+
   // Keep a running UTC clock
   useEffect(() => {
     const updateTime = () => {
@@ -50,7 +53,7 @@ export default function App() {
     return () => clearInterval(interval);
   }, []);
 
-  // Fetch custom mods from backend on mount
+  // Fetch custom mods and credentials from backend on mount
   useEffect(() => {
     const fetchCustomMods = async () => {
       try {
@@ -64,30 +67,27 @@ export default function App() {
         console.error("Failed to load custom mods from backend:", err);
       }
     };
+
+    const fetchCredentials = async () => {
+      try {
+        const res = await fetch("/api/credentials");
+        if (res.ok) {
+          const data = await res.json();
+          setCredentials(data);
+          setEditCreds(data);
+        }
+      } catch (err) {
+        console.error("Failed to load credentials from backend:", err);
+      }
+    };
+
     fetchCustomMods();
+    fetchCredentials();
   }, []);
 
-  // Auto-rotation of active mods
+  // Auto-rotation of active mods (Disabled per user request to lock cards in place)
   const releasedMods = allMods.filter((mod) => mod.status === "Available Now");
   const upcomingMods = allMods.filter((mod) => mod.status !== "Available Now");
-
-  useEffect(() => {
-    if (releasedMods.length <= 1) return;
-    const interval = setInterval(() => {
-      setReleasedIndex1((prev) => (prev + 1) % releasedMods.length);
-      setReleasedIndex2((prev) => (prev + 1) % releasedMods.length);
-    }, 6000);
-    return () => clearInterval(interval);
-  }, [releasedMods.length]);
-
-  // Auto-rotation of upcoming mods
-  useEffect(() => {
-    if (upcomingMods.length <= 1) return;
-    const interval = setInterval(() => {
-      setUpcomingIndex((prev) => (prev + 1) % upcomingMods.length);
-    }, 6000);
-    return () => clearInterval(interval);
-  }, [upcomingMods.length]);
 
   // Safe actual render indices
   const rIdx1 = releasedMods.length > 0 ? releasedIndex1 % releasedMods.length : 0;
@@ -144,6 +144,32 @@ export default function App() {
       }
     } catch (err) {
       setAdminError("Failed to transmit data to secure server.");
+    }
+  };
+
+  // Handle updating developer credentials
+  const handleUpdateCredentials = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAdminError("");
+    setAdminMessage("");
+
+    try {
+      const response = await fetch("/api/credentials", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ credentials: editCreds })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setCredentials(data);
+        setAdminMessage("CREDENTIAL CONFIGURATIONS UPDATED & DEPLOYED");
+      } else {
+        const errData = await response.json();
+        setAdminError(errData.error || "Credential update failed.");
+      }
+    } catch (err) {
+      setAdminError("Failed to update credential parameters.");
     }
   };
 
@@ -223,7 +249,8 @@ export default function App() {
                 </button>
               </form>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-4">
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-4">
                 {/* Admin form */}
                 <form onSubmit={handleAddMod} className="space-y-4">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -396,6 +423,107 @@ export default function App() {
                   </div>
                 </div>
               </div>
+
+              {/* Manage Developer Credentials Section */}
+              {editCreds.length > 0 && (
+                <div className="mt-8 pt-6 border-t border-white/10">
+                  <h4 className="font-bold text-[#F27D26] uppercase flex items-center gap-1.5 mb-4 font-mono text-xs">
+                    <Icons.FileKey className="h-4 w-4" />
+                    MANAGE DEVELOPER CREDENTIALS
+                  </h4>
+                  <form onSubmit={handleUpdateCredentials} className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      {editCreds.map((cred, idx) => (
+                        <div key={cred.id} className="bg-white/5 border border-white/10 p-4 space-y-3">
+                          <div className="flex items-center gap-2 border-b border-white/10 pb-2 mb-1">
+                            <span className="text-[10px] font-bold font-mono text-zinc-400 uppercase">{cred.id} Node Config</span>
+                          </div>
+                          <div>
+                            <label className="block text-[9px] text-zinc-400 mb-1 uppercase font-mono">Title</label>
+                            <input 
+                              type="text" 
+                              required
+                              value={cred.title}
+                              onChange={(e) => {
+                                const updated = [...editCreds];
+                                updated[idx].title = e.target.value;
+                                setEditCreds(updated);
+                              }}
+                              className="w-full bg-black border border-white/20 p-2 text-xs text-white focus:outline-none focus:border-[#F27D26]"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-[9px] text-zinc-400 mb-1 uppercase font-mono">Badge</label>
+                            <input 
+                              type="text" 
+                              required
+                              value={cred.badge}
+                              onChange={(e) => {
+                                const updated = [...editCreds];
+                                updated[idx].badge = e.target.value;
+                                setEditCreds(updated);
+                              }}
+                              className="w-full bg-black border border-white/20 p-2 text-xs text-white focus:outline-none focus:border-[#F27D26]"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-[9px] text-zinc-400 mb-1 uppercase font-mono">Status</label>
+                            <input 
+                              type="text" 
+                              required
+                              value={cred.status}
+                              onChange={(e) => {
+                                const updated = [...editCreds];
+                                updated[idx].status = e.target.value;
+                                setEditCreds(updated);
+                              }}
+                              className="w-full bg-black border border-white/20 p-2 text-xs text-white focus:outline-none focus:border-[#F27D26]"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-[9px] text-zinc-400 mb-1 uppercase font-mono">Tech Stack</label>
+                            <input 
+                              type="text" 
+                              required
+                              value={cred.techStack}
+                              onChange={(e) => {
+                                const updated = [...editCreds];
+                                updated[idx].techStack = e.target.value;
+                                setEditCreds(updated);
+                              }}
+                              className="w-full bg-black border border-white/20 p-2 text-xs text-white focus:outline-none focus:border-[#F27D26]"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-[9px] text-zinc-400 mb-1 uppercase font-mono">Description</label>
+                            <textarea 
+                              rows={4}
+                              required
+                              value={cred.description}
+                              onChange={(e) => {
+                                const updated = [...editCreds];
+                                updated[idx].description = e.target.value;
+                                setEditCreds(updated);
+                              }}
+                              className="w-full bg-black border border-white/20 p-2 text-xs text-white focus:outline-none focus:border-[#F27D26] leading-relaxed"
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="flex justify-end pt-2">
+                      <button
+                        type="submit"
+                        className="px-6 py-2.5 bg-[#F27D26] hover:bg-[#d66a1e] text-black font-extrabold uppercase transition-all cursor-pointer text-xs flex items-center gap-2"
+                      >
+                        <Icons.Save className="h-4 w-4" />
+                        COMPILE & DEPLOY CREDENTIAL PACKETS
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              )}
+              </>
             )}
           </div>
         )}
@@ -488,7 +616,7 @@ export default function App() {
                     Active Creations & Mods
                   </h2>
                 </div>
-                <span className="text-[10px] font-mono text-[#F27D26] uppercase">ROTATOR ONLINE</span>
+                <span className="text-[10px] font-mono text-[#F27D26] uppercase">SYSTEM ARCHIVE</span>
               </div>
 
               {releasedMods.length === 0 ? (
@@ -685,7 +813,7 @@ export default function App() {
 
         {/* Credentials & Registries Segment */}
         <section id="credentials-section" className="mt-12 pt-8 border-t border-white/10 relative z-10">
-          <CredentialsGrid />
+          <CredentialsGrid credentials={credentials.length > 0 ? credentials : undefined} />
         </section>
 
         {/* Bottom Branding Rail */}

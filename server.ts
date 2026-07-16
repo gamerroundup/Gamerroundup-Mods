@@ -8,6 +8,60 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const CUSTOM_MODS_PATH = path.join(process.cwd(), "custom_mods.json");
+const CUSTOM_CRED_PATH = path.join(process.cwd(), "custom_credentials.json");
+
+const DEFAULT_HONEST_CREDENTIALS = [
+  {
+    id: "bethesda",
+    title: "Bethesda Verified Creator",
+    badge: "BVC-STARFIELD",
+    description: "Verified Creator for Bethesda with access to the Bethesda Creations publishing system, specializing in building and maintaining immersive additions.",
+    techStack: "Starfield Creation Kit, Papyrus Scripting, Custom Starfield Systems",
+    status: "VERIFIED CREATOR",
+    color: "border-zinc-700 bg-neutral-900 text-zinc-100 shadow-zinc-950",
+    icon: "Award"
+  },
+  {
+    id: "microsoft",
+    title: "Microsoft Partner",
+    badge: "MS-PARTNER-ID",
+    description: "Microsoft Partner because of VC status with Bethesda, working within the broader Xbox and Microsoft developer ecosystem.",
+    techStack: "Microsoft Dev Center, Xbox Live Integration Guides",
+    status: "ACTIVE PARTNER",
+    color: "border-blue-900 bg-blue-950/20 text-blue-100 shadow-blue-950/20",
+    icon: "Cpu"
+  },
+  {
+    id: "google",
+    title: "Google Developer",
+    badge: "GDEV-CONSOLES",
+    description: "Self-taught weekend warrior developer with access to Google developer functions and publishing tools, learning and expanding capabilities for when ready to deploy.",
+    techStack: "Google Play Console, React & Web Tools, Firebase & AI Tools",
+    status: "ACCESS GRANTED",
+    color: "border-emerald-900 bg-emerald-950/10 text-emerald-100 shadow-emerald-950/10",
+    icon: "Code2"
+  }
+];
+
+function getCustomCredentials(): any[] {
+  try {
+    if (fs.existsSync(CUSTOM_CRED_PATH)) {
+      const data = fs.readFileSync(CUSTOM_CRED_PATH, "utf8");
+      return JSON.parse(data);
+    }
+  } catch (err) {
+    console.error("Error reading custom credentials:", err);
+  }
+  return DEFAULT_HONEST_CREDENTIALS;
+}
+
+function saveCustomCredentials(creds: any[]) {
+  try {
+    fs.writeFileSync(CUSTOM_CRED_PATH, JSON.stringify(creds, null, 2), "utf8");
+  } catch (err) {
+    console.error("Error saving custom credentials:", err);
+  }
+}
 
 function getCustomMods(): any[] {
   try {
@@ -55,6 +109,30 @@ async function startServer() {
   const PORT = 3000;
 
   app.use(express.json());
+
+  // API Route: Get all custom credentials
+  app.get("/api/credentials", (req, res) => {
+    try {
+      const creds = getCustomCredentials();
+      res.json(creds);
+    } catch (error: any) {
+      res.status(500).json({ error: "Failed to read credentials database." });
+    }
+  });
+
+  // API Route: Update custom credentials
+  app.post("/api/credentials", (req, res) => {
+    try {
+      const { credentials } = req.body;
+      if (!Array.isArray(credentials)) {
+        return res.status(400).json({ error: "Credentials must be an array." });
+      }
+      saveCustomCredentials(credentials);
+      res.json(credentials);
+    } catch (error: any) {
+      res.status(500).json({ error: "Failed to update credentials database." });
+    }
+  });
 
   // API Route: Get all custom mods
   app.get("/api/mods", (req, res) => {

@@ -250,7 +250,7 @@ export default function CYOATerminal() {
         } else {
           setAutoPlayIntro(false);
         }
-      }, 5500); // 5.5 seconds per panel to allow comfortable reading
+      }, 11000); // 11.0 seconds per panel to allow comfortable reading
       return () => clearTimeout(timer);
     }
   }, [step, currentIntroPanel, autoPlayIntro]);
@@ -585,7 +585,7 @@ ${result.redditReadyText}
                           key={currentIntroPanel}
                           initial={{ width: "0%" }}
                           animate={{ width: "100%" }}
-                          transition={{ duration: 5.5, ease: "linear" }}
+                          transition={{ duration: 11.0, ease: "linear" }}
                           className="h-full bg-[#F27D26]"
                         />
                       </div>
@@ -725,7 +725,7 @@ ${result.redditReadyText}
                           setSelectedOrigin(orig.id);
                           setStep("trait");
                         }}
-                        className={`p-3 text-left transition-all rounded-none border text-zinc-100 flex flex-col justify-between hover:scale-[1.01] ${
+                        className={`p-3 text-left transition-all rounded-none border text-zinc-100 flex flex-col justify-between hover:scale-[1.01] h-[140px] sm:h-[125px] overflow-y-auto ${
                           selectedOrigin === orig.id 
                             ? "border-[#F27D26] bg-[#F27D26]/10" 
                             : "border-white/10 bg-white/5 hover:border-white/30 hover:bg-white/10"
@@ -833,7 +833,7 @@ ${result.redditReadyText}
                       setSelectedTrait(tr.id);
                       setStep("choice");
                     }}
-                    className={`p-3 text-left transition-all rounded-none border ${
+                    className={`p-3 text-left transition-all rounded-none border h-[120px] sm:h-[105px] flex flex-col justify-between overflow-y-auto ${
                       selectedTrait === tr.id 
                         ? "border-[#F27D26] bg-[#F27D26]/10" 
                         : "border-white/10 bg-white/5 hover:border-white/30"
@@ -872,7 +872,7 @@ ${result.redditReadyText}
                       setSelectedChoice(ch.id);
                       setStep("faction");
                     }}
-                    className={`w-full p-4 text-left transition-all rounded-none border ${
+                    className={`w-full p-4 text-left transition-all rounded-none border h-[115px] sm:h-[95px] flex flex-col justify-between overflow-y-auto ${
                       selectedChoice === ch.id 
                         ? "border-[#F27D26] bg-[#F27D26]/10" 
                         : "border-white/10 bg-white/5 hover:border-white/30"
@@ -910,7 +910,7 @@ ${result.redditReadyText}
                       playBeep(1000, "sine", 0.1);
                       setSelectedFaction(f.id);
                     }}
-                    className={`p-3 text-left transition-all rounded-none border ${
+                    className={`p-3 text-left transition-all rounded-none border h-[125px] sm:h-[105px] flex flex-col justify-between overflow-y-auto ${
                       selectedFaction === f.id 
                         ? "border-[#F27D26] bg-[#F27D26]/10" 
                         : "border-white/10 bg-white/5 hover:border-white/30"
